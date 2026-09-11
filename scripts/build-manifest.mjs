@@ -31,17 +31,28 @@ function walk(dir) {
   });
 }
 
-/* Hash raw bytes, and normalise path separators, so a manifest built on
-   Windows and one built on Linux agree. Line endings are NOT normalised: a
-   CRLF/LF difference is a real byte difference in what gets served, and
-   papering over it here would hide exactly the drift this exists to catch. */
+/* Hash the canonical LF form, and normalise path separators, so a manifest
+   built on Windows, one built on Linux, and a fresh clone all agree.
+
+   Line endings ARE normalised, deliberately. CRLF vs LF is checkout noise,
+   not a code change: it cannot alter JavaScript semantics (template literals
+   normalise line terminators to LF per the spec, and ordinary strings cannot
+   contain raw line breaks), and the site's bundler minifies the source anyway.
+   Hashing raw bytes once let an editor's CRLF slip into the manifest, so a
+   fresh clone — which .gitattributes forces to LF — failed to match it. The
+   drift this exists to catch is code drift, which normalising cannot hide.
+
+   MUST stay identical to hashCanonical() in the app's check-crypto-parity.mjs,
+   or the two will disagree about every file. */
+export function hashCanonical(bytes) {
+  const canonical = Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
 const files = Object.fromEntries(
   walk(SRC)
     .filter((file) => file.endsWith(".js"))
-    .map((file) => [
-      relative(ROOT, file).split(sep).join("/"),
-      createHash("sha256").update(readFileSync(file)).digest("hex"),
-    ])
+    .map((file) => [relative(ROOT, file).split(sep).join("/"), hashCanonical(readFileSync(file))])
     .sort(([a], [b]) => a.localeCompare(b)),
 );
 
