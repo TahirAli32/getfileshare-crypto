@@ -1,0 +1,8 @@
+# Pin line endings so file hashes are the same on every platform.
+#
+# crypto-manifest.json records the SHA-256 of each source file. Without this,
+# git's autocrlf converts LF to CRLF on a Windows checkout, and a user who
+# clones this repo and hashes a file gets a different digest from the one we
+# published — making the manifest look wrong when nothing has changed.
+* text=auto eol=lf
+*.json text eol=lf

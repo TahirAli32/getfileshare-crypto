@@ -1,0 +1,24 @@
+{
+  "name": "@getfileshare/crypto",
+  "version": "1.0.0",
+  "description": "The client-side encryption used by GetFileShare, published so it can be inspected and independently verified.",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./password": "./src/cryptoPassword.js",
+    "./e2e": "./src/crypto.js",
+    "./spec": "./src/data/cryptoSpec.js"
+  },
+  "scripts": {
+    "gen:vectors": "node scripts/gen-verify-vectors.mjs",
+    "check:vectors": "node scripts/check-verify-vectors.mjs",
+    "manifest": "node scripts/build-manifest.mjs",
+    "verify": "node scripts/check-verify-vectors.mjs && node scripts/build-manifest.mjs --check"
+  },
+  "dependencies": {
+    "hash-wasm": "4.12.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
