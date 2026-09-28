@@ -1,12 +1,12 @@
 {
   "$comment": "SHA-256 of each published crypto source file. The GetFileShare app ships a copy of this and fails its build if its crypto differs.",
   "package": "@getfileshare/crypto",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "files": {
     "src/crypto.js": "71907f7ae15bf65f650d92c3141159bf408526d4670abdc80712a6da05635c5d",
     "src/cryptoClient.js": "0a821a52f934d1ab5cba34ea7544549da63e2f13c3761298100c1153e294f2ab",
     "src/cryptoPassword.js": "bcaaaab150747c6dc0a8b85ac12033a0c8a08329d44c160ae54f833b3f647eba",
     "src/cryptoWorker.js": "ca11757a4f4654ac7874b01c45cd5054c265e592fb6901ddbe90307d848362c4",
-    "src/data/cryptoSpec.js": "54384608c8bf6795f5931ffa45e4b59d5732da9b0acc28256d0f2a5544e40ea0"
+    "src/data/cryptoSpec.js": "8fa580e4ecbbfa5b0908d3458e9f5d3394d0fcdd7284990ab03be97751f09268"
   }
 }

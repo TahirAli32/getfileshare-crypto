@@ -110,3 +110,8 @@ version.
 
 Security issues: https://getfileshare.cloud/contact — please do not open a
 public issue for a vulnerability.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE). The point of publishing this is that you can read
+it, run it and check it; the licence lets you reuse the decryptor too.
