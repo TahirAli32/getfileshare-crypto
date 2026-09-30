@@ -56,13 +56,28 @@ const files = Object.fromEntries(
     .sort(([a], [b]) => a.localeCompare(b)),
 );
 
+/* The dist section belongs to build-dist.mjs, which hashes the built artifact
+   the site actually serves. Carry it through untouched: this script rebuilds
+   the manifest object from scratch, so without this it would drop those hashes
+   every run, and --check — which compares the whole serialised file — would
+   fail forever once dist existed. Staleness of dist is build-dist --check's
+   job, not this one's. */
+let dist;
+try {
+  dist = JSON.parse(readFileSync(MANIFEST, "utf8")).dist;
+} catch {
+  dist = undefined;
+}
+
 const manifest = {
   $comment:
-    "SHA-256 of each published crypto source file. The GetFileShare app ships " +
-    "a copy of this and fails its build if its crypto differs.",
+    "SHA-256 of each published crypto source file, and of the built artifact " +
+    "the site loads. The GetFileShare app ships a copy of this and fails its " +
+    "build if either differs.",
   package: pkg.name,
   version: pkg.version,
   files,
+  ...(dist ? { dist } : {}),
 };
 
 const serialised = `${JSON.stringify(manifest, null, 2)}\n`;

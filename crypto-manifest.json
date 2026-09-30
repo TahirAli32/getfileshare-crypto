@@ -1,12 +1,17 @@
 {
-  "$comment": "SHA-256 of each published crypto source file. The GetFileShare app ships a copy of this and fails its build if its crypto differs.",
+  "$comment": "SHA-256 of each published crypto source file, and of the built artifact the site loads. The GetFileShare app ships a copy of this and fails its build if either differs.",
   "package": "@getfileshare/crypto",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "files": {
     "src/crypto.js": "71907f7ae15bf65f650d92c3141159bf408526d4670abdc80712a6da05635c5d",
     "src/cryptoClient.js": "0a821a52f934d1ab5cba34ea7544549da63e2f13c3761298100c1153e294f2ab",
     "src/cryptoPassword.js": "bcaaaab150747c6dc0a8b85ac12033a0c8a08329d44c160ae54f833b3f647eba",
     "src/cryptoWorker.js": "ca11757a4f4654ac7874b01c45cd5054c265e592fb6901ddbe90307d848362c4",
-    "src/data/cryptoSpec.js": "8fa580e4ecbbfa5b0908d3458e9f5d3394d0fcdd7284990ab03be97751f09268"
+    "src/data/cryptoSpec.js": "5b583e5513b86e2c228279e95a5a74981ac7a030cf281a83d47650fc45a9ebe9",
+    "src/index.js": "7054cd421f47b9054583f1903470e7e5eeded8e3da44c545de9f852504597107"
+  },
+  "dist": {
+    "dist/1.2.0/cryptoWorker.js": "bc8eda898238d04a51215d9b4e7a9eb21338db75b9a078b3b2862831c0f6ae8e",
+    "dist/1.2.0/index.mjs": "9950038c556325e67d23fa88cb9d63de57e31fd13b1ba0618a666ab9d3d29500"
   }
 }

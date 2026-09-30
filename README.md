@@ -74,15 +74,58 @@ to the wrong position fails authentication.
 
 ---
 
+## Reproduce the build
+
+The site does not compile its own copy of this source. It fetches a prebuilt
+artifact, and that artifact is what you can check:
+
+```bash
+npm ci
+npm run build:dist
+sha256sum dist/1.1.0/index.mjs dist/1.1.0/cryptoWorker.js
+```
+
+Compare those digests with the `dist` section of
+[`crypto-manifest.json`](crypto-manifest.json), and with what your browser
+actually loaded:
+
+```bash
+curl -s https://getfileshare.cloud/crypto/1.1.0/index.mjs | sha256sum
+curl -s https://getfileshare.cloud/crypto/1.1.0/cryptoWorker.js | sha256sum
+```
+
+Four digests, one value. If they agree, the encryption running in your browser
+is built from the source in this repository — not a copy of it, and not a
+description of it.
+
+You can watch it happen: open DevTools → Network on the upload or transfer
+page and you will see `index.mjs` fetched from `/crypto/1.1.0/`. It is not
+minified, so you can read it.
+
+**Why it reproduces.** esbuild and hash-wasm are pinned to exact versions, not
+ranges; there is no minification, sourcemap, banner or timestamp; and
+`.gitattributes` forces LF, so a Windows checkout and a Linux one feed the
+bundler identical bytes. Two builds of the same commit produce the same bytes
+on any machine — which is the only reason a published hash means anything.
+
+---
+
 ## What this does not prove
 
 Stated plainly, because a verification repository that overclaims is worse
 than none.
 
-**It does not prove the JavaScript your browser ran was built from this
-source.** We serve that JavaScript. The manifest guarantees the site's *source*
-contains this crypto; it cannot show that the *bundle* you received was
-produced from it. A compromised deployment could serve different code.
+**It does not prove the application hands your password to this code and
+nothing else.** The password field and the upload flow live in the closed-source
+application. The crypto here being correct and reproducible does not rule out
+code elsewhere reading the password before encryption happens. This is now the
+sharpest remaining limit, and the one the reproducible build does not touch.
+
+**It does not prove the application chose to call this artifact.** You can see
+that your browser fetched it, and that its bytes match. What you cannot see
+from here is that nothing else ran instead. The network tab is the evidence
+available: a second crypto implementation would have to come from somewhere,
+and the page's Content Security Policy confines it to same-origin code.
 
 **It does not prove the application passes your password to this code and
 nothing else.** The password field and upload flow live in the closed-source
@@ -94,8 +137,9 @@ there is nothing to decrypt afterwards. The evidence available there is the
 safety code shown on both devices, which rules out a substituted key, and your
 browser's network tab.
 
-Published build hashes are planned to narrow the first of these. They are not
-shipped yet, and this section will change when they are.
+The first of these used to read "we cannot show the bundle you received was
+produced from this source". The reproducible build above closes that gap; what
+remains above is what it does not close.
 
 ---
 

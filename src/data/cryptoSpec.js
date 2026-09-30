@@ -124,16 +124,23 @@ export const TRUST_MODEL = Object.freeze({
     "record — file size and type, the file name on cloud uploads, who uploaded it and when, and the IP address and " +
     "browser of each side — and keeps it for the periods published in the privacy policy, not indefinitely.",
 
+  /* Narrowed deliberately when the verifiable build shipped. The old wording
+     said a malicious deployment could serve a build that copies your file and
+     you would have no way to tell. The first half is still true of any web
+     app; the second is not true here any more, and leaving it would have been
+     underclaiming — which costs credibility exactly as overclaiming does. */
   residualTrust:
-    "That holds as long as the code running in your browser is the code we describe — and we are the ones who serve it. " +
-    "This is the unavoidable limit of in-browser encryption: a compromised or malicious deployment could serve a build " +
-    "that copies your file before encrypting it. No amount of AES or RSA changes that.",
+    "That holds as long as the code running in your browser is the code we describe. For the encryption itself you no " +
+    "longer have to take that on trust: it is served as a published build you can reproduce byte for byte and compare " +
+    "against what your browser loaded. What remains is the application around it, which is closed source — it is what " +
+    "hands your file and your password to that code, and nothing here proves it does not read them first.",
 
   whatYouCanCheck:
-    "Two things are checkable without trusting us: compare the safety code with the other device, which rules out a " +
-    "substituted key; and watch the network traffic in your browser's developer tools, which also tells you which " +
-    "path a given transfer actually took — a relayed transfer shows ciphertext frames on the WebSocket, and a direct " +
-    "one shows no file data leaving for our servers at all.",
+    "Three things are checkable without trusting us: rebuild the published encryption yourself and compare its hash " +
+    "with the file your browser loaded; compare the safety code with the other device, which rules out a substituted " +
+    "key; and watch the network traffic in your browser's developer tools, which also tells you which path a given " +
+    "transfer actually took — a relayed transfer shows ciphertext frames on the WebSocket, and a direct one shows no " +
+    "file data leaving for our servers at all.",
 
   /* Precise about what the check actually does. It is a lint: it fails the
      build when a page hardcodes an algorithm name instead of importing it.
@@ -143,6 +150,50 @@ export const TRUST_MODEL = Object.freeze({
     "The algorithm names and key sizes on this page aren't hand-typed marketing copy — the direct-transfer encryption " +
     "code reads its parameters from the same file this page quotes, and an automated build check fails the build if " +
     "any page states a crypto claim of its own instead of importing it from there.",
+});
+
+/* The verifiable build.
+ *
+ * Every other claim on the site is a statement about code you cannot see. This
+ * is the one that hands you the means to check it, so it gets its own block
+ * rather than a sentence inside TRUST_MODEL, and the pages quote it verbatim.
+ *
+ * `version` is the single source of truth for which build is live: the app's
+ * runtime loader reads it from here to construct the fetch URL, and the build
+ * fails if the files under that path do not hash to the published manifest. A
+ * page advertising one version while the browser fetched another would be
+ * worse than not advertising it at all.
+ */
+export const VERIFIABLE_BUILD = Object.freeze({
+  version: "1.2.0",
+  repository: "https://github.com/TahirAli32/getfileshare-crypto",
+  digestAlgorithm: "SHA-256",
+
+  headline: "Verifiable build",
+
+  claim:
+    "The encryption is not compiled into this site. Your browser fetches it as one published file, built from public " +
+    "source by a build anyone can repeat byte for byte — so you can check that the code encrypting your file is the " +
+    "code we published, rather than taking our word for it.",
+
+  /* Written as something a reader can actually carry out in a few minutes.
+     Instructions nobody can follow are decoration, not evidence. */
+  steps: Object.freeze([
+    "Open your browser's developer tools, reload, and find the crypto file it fetched. It is not minified — you can read it.",
+    "Hash that file.",
+    "Clone the public repository, run the build, and hash what it produces.",
+    "The two digests match, or something is wrong and you should not trust this site.",
+  ]),
+
+  reproducibility:
+    "The build pins its compiler and its dependencies to exact versions, emits no timestamps and does not minify, so " +
+    "two builds of the same source produce identical bytes on any machine. Without that, a published hash would mean " +
+    "nothing — it could never be reproduced to contradict.",
+
+  limit:
+    "This proves the encryption is the published code. It does not prove the closed-source page around it hands your " +
+    "file and password to that code untouched — which is now the sharpest limit left, and the honest thing to say " +
+    "beside the claim.",
 });
 
 export const CRYPTO_COPY = Object.freeze({
