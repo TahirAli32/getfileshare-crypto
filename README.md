@@ -77,7 +77,25 @@ to the wrong position fails authentication.
 ## Reproduce the build
 
 The site does not compile its own copy of this source. It fetches a prebuilt
-artifact, and that artifact is what you can check:
+artifact, and that artifact is what you can check.
+
+**What is published right now**
+
+| | |
+|---|---|
+| Version | `1.2.0` |
+| Tag | [`v1.2.0`](https://github.com/TahirAli32/getfileshare-crypto/releases/tag/v1.2.0) |
+| Built from commit | `97fd53770d2107c924c33b1549009872ea662ece` |
+| `dist/1.2.0/index.mjs` | `9950038c556325e6…` |
+| `dist/1.2.0/cryptoWorker.js` | `bc8eda898238d04a…` |
+
+Build from that exact commit, not from `main`, if you want the bytes the site
+is serving today — `main` may have moved on. Full digests are in
+[`crypto-manifest.json`](crypto-manifest.json).
+
+```bash
+git checkout 97fd53770d2107c924c33b1549009872ea662ece
+```
 
 ```bash
 npm ci
