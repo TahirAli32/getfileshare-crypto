@@ -14,7 +14,8 @@
     "check:vectors": "node scripts/check-verify-vectors.mjs",
     "manifest": "node scripts/build-manifest.mjs",
     "verify": "node scripts/check-verify-vectors.mjs && node scripts/build-manifest.mjs --check && node scripts/build-dist.mjs --check",
-    "build:dist": "node scripts/build-dist.mjs"
+    "build:dist": "node scripts/build-dist.mjs",
+    "verify:release": "node scripts/verify-release.mjs"
   },
   "dependencies": {
     "hash-wasm": "4.12.0"

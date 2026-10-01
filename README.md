@@ -97,28 +97,66 @@ is serving today — `main` may have moved on. Full digests are in
 git checkout 97fd53770d2107c924c33b1549009872ea662ece
 ```
 
+**One command.** This rebuilds from source, then compares the result against
+the published manifest and against what the live site is serving right now:
+
 ```bash
 npm ci
-npm run build:dist
-sha256sum dist/1.1.0/index.mjs dist/1.1.0/cryptoWorker.js
+npm run verify:release
 ```
 
-Compare those digests with the `dist` section of
-[`crypto-manifest.json`](crypto-manifest.json), and with what your browser
-actually loaded:
+```text
+  Artifact         Published       Local build   Production
+  ---------------  --------------  ------------  ----------
+  cryptoWorker.js  bc8eda898238…   match         match
+  index.mjs        9950038c5563…   match         match
+
+  RESULT: VERIFIED
+```
+
+It takes the version from `package.json` and the expected digests from
+`crypto-manifest.json`, so it cannot drift out of step with a release the way
+hand-written instructions can — which is exactly what happened to an earlier
+version of this section. `--offline` skips the production fetch;
+`--origin <url>` checks a different deployment.
+
+**By hand, if you would rather not run our script.** Substitute the version
+from the table above for `$V`:
 
 ```bash
-curl -s https://getfileshare.cloud/crypto/1.1.0/index.mjs | sha256sum
-curl -s https://getfileshare.cloud/crypto/1.1.0/cryptoWorker.js | sha256sum
+V=1.2.0
+
+npm ci && npm run build:dist
+sha256sum dist/$V/index.mjs dist/$V/cryptoWorker.js
+
+curl -s https://getfileshare.cloud/crypto/$V/index.mjs | sha256sum
+curl -s https://getfileshare.cloud/crypto/$V/cryptoWorker.js | sha256sum
 ```
 
-Four digests, one value. If they agree, the encryption running in your browser
-is built from the source in this repository — not a copy of it, and not a
-description of it.
+Four digests, one value, matching the `dist` section of
+[`crypto-manifest.json`](crypto-manifest.json). If they agree, the encryption
+running in your browser is built from the source in this repository — not a
+copy of it, and not a description of it.
 
 You can watch it happen: open DevTools → Network on the upload or transfer
-page and you will see `index.mjs` fetched from `/crypto/1.1.0/`. It is not
+page and you will see `index.mjs` fetched from `/crypto/1.2.0/`. It is not
 minified, so you can read it.
+
+**Nothing executable comes from outside these two files.** A reproducible
+build is worth nothing if the artifact then fetches its real cryptography from
+somewhere unhashed, so this is worth stating precisely rather than implying:
+
+- Argon2id's WebAssembly is embedded in `index.mjs` as inline base64. There is
+  no `.wasm` URL anywhere in the artifact, and nothing is fetched to obtain it.
+- The only dynamic load is `new Worker("./cryptoWorker.js", import.meta.url)`,
+  which resolves to the sibling file in the same versioned directory — and that
+  file is itself in the manifest.
+- There is no `fetch`, no `importScripts`, no streaming WebAssembly
+  instantiation and no dynamic `import()` in either file. The only absolute
+  URLs are documentation links in comments.
+
+You can confirm all of that yourself with `grep` on the artifact you
+downloaded; it is not minified.
 
 **Why it reproduces.** esbuild and hash-wasm are pinned to exact versions, not
 ranges; there is no minification, sourcemap, banner or timestamp; and
